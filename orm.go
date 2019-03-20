@@ -3,11 +3,19 @@ package orm
 import (
 	"strings"
 
+	"time"
+
 	"github.com/jinzhu/gorm"
 	"github.com/rs/xid"
 )
 
 var Singleton *DB
+
+type Model struct {
+	ID        string    `gorm:"primary_key;size:20"`
+	CreatedAt time.Time `gorm:"index"`
+	UpdatedAt time.Time `gorm:"index"`
+}
 
 func Instantiate(dsn string) {
 	if Singleton != nil {
@@ -21,6 +29,18 @@ func Instantiate(dsn string) {
 	}
 
 	db.LogMode(true)
+
+	gorm.AddNamingStrategy(&gorm.NamingStrategy{
+		DB: func(name string) string {
+			return name
+		},
+		Table: func(name string) string {
+			return name
+		},
+		Column: func(name string) string {
+			return name
+		},
+	})
 
 	beforeCreateCallback := func(scope *gorm.Scope) {
 		if !strings.HasSuffix(scope.TableName(), "deleted") {
