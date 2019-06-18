@@ -11,6 +11,15 @@ import (
 
 var Singleton *DB
 
+type IDModel struct {
+	ID string `gorm:"primary_key;size:20"`
+}
+
+type TimeModel struct {
+	CreatedAt time.Time `gorm:"index"`
+	UpdatedAt time.Time `gorm:"index"`
+}
+
 type Model struct {
 	ID        string    `gorm:"primary_key;size:20"`
 	CreatedAt time.Time `gorm:"index"`
