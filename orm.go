@@ -108,3 +108,14 @@ func (tx *TX) Commit(noPanic ...bool) error {
 	tx.committed = true
 	return nil
 }
+
+func IsRecordNotFound(err error) bool {
+	if errors, ok := err.(gorm.Errors); ok {
+		for _, err := range errors {
+			if err == gorm.ErrRecordNotFound {
+				return true
+			}
+		}
+	}
+	return err == gorm.ErrRecordNotFound
+}
