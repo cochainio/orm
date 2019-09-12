@@ -2,9 +2,9 @@ package orm
 
 import (
 	"strings"
-
 	"time"
 
+	"github.com/cochainio/orm/bulk_insert"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -78,6 +78,10 @@ type DB struct {
 	*gorm.DB
 }
 
+func (db *DB) BulkCreate(objects []interface{}, opts ...bulk_insert.BuilderOpt) error {
+	return bulk_insert.NewBuilder(opts...).Exec(db.DB, objects)
+}
+
 type TX struct {
 	*gorm.DB
 	committed bool
@@ -107,6 +111,10 @@ func (tx *TX) Commit(noPanic ...bool) error {
 
 	tx.committed = true
 	return nil
+}
+
+func (tx *TX) BulkCreate(objects []interface{}, opts ...bulk_insert.BuilderOpt) error {
+	return bulk_insert.NewBuilder(opts...).Exec(tx.DB, objects)
 }
 
 func IsRecordNotFound(err error) bool {
