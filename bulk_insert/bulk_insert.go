@@ -46,7 +46,7 @@ func NewBuilder(opts ...BuilderOpt) *Builder {
 	return b
 }
 
-func (b *Builder) Exec(db *gorm.DB, objects []interface{}) error {
+func (b *Builder) Exec(db *gorm.DB, objects interface{}) error {
 	return BulkInsert(db, objects, b.chunkSize, b.replace, b.excludeColumns...)
 }
 
@@ -56,9 +56,18 @@ func (b *Builder) Exec(db *gorm.DB, objects []interface{}) error {
 //                  Embedding a large number of variables at once will raise an error beyond the limit of prepared statement.
 //                  Larger size will normally lead the better performance, but 2000 to 3000 is reasonable.
 // [excludeColumns] Columns you want to exclude from insert. You can omit if there is no column you want to exclude.
-func BulkInsert(db *gorm.DB, objects []interface{}, chunkSize int, replace bool, excludeColumns ...string) error {
+func BulkInsert(db *gorm.DB, objects interface{}, chunkSize int, replace bool, excludeColumns ...string) error {
+	value := reflect.ValueOf(objects)
+	if value.Kind() != reflect.Slice {
+		return errors.New("objects must be a slice")
+	}
+	objectInterfaces := make([]interface{}, value.Len())
+	for i := 0; i < value.Len(); i++ {
+		objectInterfaces[i] = value.Index(i).Interface()
+	}
+
 	// Split records with specified size not to exceed Database parameter limit
-	for _, objSet := range splitObjects(objects, chunkSize) {
+	for _, objSet := range splitObjects(objectInterfaces, chunkSize) {
 		if err := insertObjSet(db, objSet, replace, excludeColumns...); err != nil {
 			return err
 		}

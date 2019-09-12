@@ -78,7 +78,7 @@ type DB struct {
 	*gorm.DB
 }
 
-func (db *DB) BulkCreate(objects []interface{}, opts ...bulk_insert.BuilderOpt) error {
+func (db *DB) BulkCreate(objects interface{}, opts ...bulk_insert.BuilderOpt) error {
 	return bulk_insert.NewBuilder(opts...).Exec(db.DB, objects)
 }
 
@@ -113,7 +113,7 @@ func (tx *TX) Commit(noPanic ...bool) error {
 	return nil
 }
 
-func (tx *TX) BulkCreate(objects []interface{}, opts ...bulk_insert.BuilderOpt) error {
+func (tx *TX) BulkCreate(objects interface{}, opts ...bulk_insert.BuilderOpt) error {
 	return bulk_insert.NewBuilder(opts...).Exec(tx.DB, objects)
 }
 
