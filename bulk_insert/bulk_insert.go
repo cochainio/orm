@@ -95,7 +95,7 @@ func insertObjSet(db *gorm.DB, objects []interface{}, replace bool, excludeColum
 	// Replace with database column name
 	dbColumns := make([]string, 0, attrSize)
 	for _, key := range sortedKeys(firstAttrs) {
-		dbColumns = append(dbColumns, gorm.ToColumnName(key))
+		dbColumns = append(dbColumns, mainScope.Quote(gorm.ToColumnName(key)))
 	}
 
 	for _, obj := range objects {
