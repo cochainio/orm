@@ -31,7 +31,7 @@ type Model struct {
 	UpdatedAt time.Time `gorm:"index"`
 }
 
-func Instantiate(dsn string) {
+func Instantiate(dsn string, enableLog bool) {
 	if Singleton != nil {
 		panic("orm has been instantiated")
 	}
@@ -42,7 +42,8 @@ func Instantiate(dsn string) {
 		panic(err.Error())
 	}
 
-	db.LogMode(true)
+	db.SingularTable(true)
+	db.LogMode(enableLog)
 
 	gorm.AddNamingStrategy(&gorm.NamingStrategy{
 		DB: func(name string) string {
