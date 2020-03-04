@@ -4,13 +4,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cochainio/orm/bulk_insert"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/rs/xid"
+
+	"github.com/cochainio/orm/bulk_insert"
 )
 
 var Singleton *DB
@@ -57,7 +58,8 @@ func Instantiate(dsn string) {
 
 	beforeCreateCallback := func(scope *gorm.Scope) {
 		if !strings.HasSuffix(scope.TableName(), "deleted") {
-			if scope.HasColumn("ID") {
+			pf := scope.PrimaryField()
+			if pf != nil && (pf.Name == "ID" || pf.DBName == "ID") && pf.IsBlank {
 				scope.SetColumn("ID", xid.New().String())
 			}
 		} else {
